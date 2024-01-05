@@ -1,83 +1,162 @@
-import pickle
+class Node:
+    def __init__(self,data):
+        self.left = None
+        self.data = data
+        self.right = None
+        self.parent = None
 
-class Product:
-    def __init__(self, name, price):
-        self.name = name
-        self.price = price
+class BinarySearchTree:
+    def createNode(self,data):
+        return Node(data)
 
-    def display_info(self):
-        print(f"Name: {self.name}, Price: ${self.price}")
+    def insert(self,node,value):
+        if node is None:
+            return self.createNode(value)
 
-class Electronics(Product):
-    def __init__(self, name, price, brand):
-        super().__init__(name, price)
-        self.brand = brand
+        if value < node.data:
+            node.left = self.insert(node.left, value)
+            node.left.parent = node
 
-    def display_info(self):
-        super().display_info()
-        print(f"Brand: {self.brand}")
+        if value > node.data:
+            node.right = self.insert(node.right, value)
+            node.right.parent = node
 
-class Clothing(Product):
-    def __init__(self, name, price, size):
-        super().__init__(name, price)
-        self.size = size
+        return node
 
-    def display_info(self):
-        super().display_info()
-        print(f"Size: {self.size}")
+    def traverse_inorder(self, root):
+        if root is not None:
+            self.traverse_inorder(root.left)
+            print(root.data, end = " ")
+            self.traverse_inorder(root.right)
 
-class A:
-    def show(self):
-        print("Class A")
+    def traverse_preorder(self, root):
+        if root is not None:
+            print(root.data, end = " ")
+            self.traverse_preorder(root.left)
+            self.traverse_preorder(root.right)
 
-class B(A):
-    def show(self):
-        print("Class B")
+    def traverse_postorder(self, root):
+        if root is not None:
+            self.traverse_postorder(root.left)
+            self.traverse_postorder(root.right)
+            print(root.data, end = " ")
 
-class C(A):
-    def show(self):
-        print("Class C")
+    def find_min(self, root):
+        if root.left is None:
+            return root.data
+        return self.find_min(root.left)
 
-class D(B, C):
-    pass
+    def find_max(self,root):
+        if root.right is None:
+            return root.data
+        return self.find_max(root.right)
 
-class InventoryManager:
-    def __init__(self):
-        self.inventory = []
+    def level_order(self,root):
+        q = []
+        q.append(root)
+        while (len(q) != 0):
+            root = q.pop(0)
+            print(root.data, end = " ")
+            if root.left is not None:
+                q.append(root.left)
+            if root.right is not None:
+                q.append(root.right)
 
-    def add_product(self, product):
-        self.inventory.append(product)
+    def find_ele(self,root,ele):
+        if root is None:
+            return None
 
-    def save_inventory(self, filename):
-        with open(filename, 'wb') as file:
-            pickle.dump(self.inventory, file)
+        if root.data == ele:
+            return root
 
-    def load_inventory(self, filename):
-        with open(filename, 'rb') as file:
-            self.inventory = pickle.load(file)
+        left_result = self.find_ele(root.left, ele)
+        if left_result is not None:
+            return left_result
 
-# Example usage
-if __name__ == "__main__":
-    # Classes, Inheritance, and Polymorphism
-    laptop = Electronics("Laptop", 1200, "Dell")
-    shirt = Clothing("Shirt", 30, "Medium")
+        right_result = self.find_ele(root.right, ele)
+        if right_result is not None:
+            return right_result
 
-    laptop.display_info()
-    shirt.display_info()
+    def delete_value(self,root,ele):
+        return self.delete_node(self.find_ele(root,ele))
 
-    # Diamond Problem
-    d_obj = D()
-    d_obj.show()
+    def delete_node(self,node):
 
-    # Serialization
-    manager = InventoryManager()
-    manager.add_product(laptop)
-    manager.add_product(shirt)
+        def min_value_node(n):
+            current = n
+            while current.left is not None:
+                current = current.left
+            return current
 
-    manager.save_inventory("inventory_data.pkl")
+        def num_children(n):
+            num_children = 0
+            if n.left is not None:
+                num_children += 1
+            if n.right is not None:
+                num_children += 1
+            return num_children
 
-    new_manager = InventoryManager()
-    new_manager.load_inventory("inventory_data.pkl")
-    print("Loaded Inventory:")
-    for item in new_manager.inventory:
-        item.display_info()
+        node_parent = node.parent
+
+        node_children = num_children(node)
+
+        if node_children == 0:
+            if node_parent.left == node:
+                node_parent.left = None
+            if node_parent.right == node:
+                node_parent.right = None
+
+        if node_children == 1:
+            if node.left is not None:
+                child = node.left
+            if node.right is not None:
+                child = node.right
+
+            if node_parent.left == node:
+                node_parent.left = child
+            else:
+                node_parent.right = child
+            child.parent = node_parent
+
+        if node_children == 2:
+            successor = min_value_node(node.right)
+
+            node.data = successor.data
+
+            self.delete_node(successor)
+
+tree = BinarySearchTree()
+root = tree.createNode(10)
+tree.insert(root, 5)
+tree.insert(root, 15)
+tree.insert(root, 12)
+tree.insert(root, 20)
+tree.insert(root, 8)
+tree.insert(root, 2)
+tree.insert(root,1)
+print("Inorder: ", end = "")
+tree.traverse_inorder(root)
+print()
+print("Preorder: ", end = "")
+tree.traverse_preorder(root)
+print()
+print("Postorder: ", end = "")
+tree.traverse_postorder(root)
+print()
+minimum = tree.find_min(root)
+print("Minimum element:", minimum)
+maximum = tree.find_max(root)
+print("Maximum Element:", maximum)
+print("Deleting node(10):")
+tree.delete_value(root,10)
+tree.traverse_inorder(root)
+print()
+print("Deleting node(2):")
+tree.delete_value(root,2)
+tree.traverse_inorder(root)
+print()
+print("Deleting node(1):")
+tree.delete_value(root,1)
+tree.traverse_inorder(root)
+print()
+        
