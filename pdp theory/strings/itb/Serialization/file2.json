@@ -1,0 +1,16 @@
+[
+    {
+        "color": "blue",
+        "radius": 5,
+        "weight": 100,
+        "plasticball": true,
+        "owner": null
+    },
+    {
+        "color": "Yellow",
+        "radius": 15,
+        "weight": 200,
+        "plasticball": true,
+        "owner": null
+    }
+]

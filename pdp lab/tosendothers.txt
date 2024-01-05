@@ -1,0 +1,203 @@
+import tkinter as tk
+from tkinter import messagebox
+
+# Observer Pattern
+class Observer:
+    def update(self):
+        pass
+
+# Singleton Pattern
+class ShoppingCart:
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance.products = []
+            cls._instance.discount_strategy = None
+            cls._instance.observers = []  # Initialize observers as an empty list
+        return cls._instance
+
+    def set_discount_strategy(self, discount_strategy):
+        self.discount_strategy = discount_strategy
+
+    def add_product(self, product):
+        self.products.append(product)
+        for observer in self.observers:
+            observer.update()
+        messagebox.showinfo("Product Added", f"{product.name} has been added to the shopping cart!")
+
+    def calculate_total_price(self):
+        if self.discount_strategy:
+            return self.discount_strategy.apply_discount(self)
+        else:
+            return sum(product.price for product in self.products)
+
+    def get_cart_contents(self):
+        return self.products
+
+    def clear_cart(self):
+        self.products = []
+        for observer in self.observers:
+            observer.update()
+        messagebox.showinfo("Cart Cleared", "The shopping cart has been cleared!")
+
+# Strategy Pattern
+class DiscountStrategy:
+    def apply_discount(self, shopping_cart):
+        pass
+
+class NoDiscountStrategy(DiscountStrategy):
+    def apply_discount(self, shopping_cart):
+        return sum(product.price for product in shopping_cart.products)
+
+class BlackFridayDiscountStrategy(DiscountStrategy):
+    def apply_discount(self, shopping_cart):
+        return 0.8 * sum(product.price for product in shopping_cart.products)
+
+class ChristmasDiscountStrategy(DiscountStrategy):
+    def apply_discount(self, shopping_cart):
+        return 0.75 * sum(product.price for product in shopping_cart.products)
+
+# Factory Method Pattern
+class ProductFactory:
+    @staticmethod
+    def create_product(name, price):
+        return Product(name, price)
+
+# Model
+class Product:
+    def __init__(self, name, price):
+        self.name = name
+        self.price = price
+
+# View
+class ECommerceView(tk.Tk, Observer):
+    def __init__(self, controller):
+        super().__init__()
+        self.title("E-Commerce Application")
+        self.controller = controller
+        self.controller.attach(self)
+
+        self.product_name_label = tk.Label(self, text="Product:")
+        self.product_name_label.pack()
+
+        self.product_name_entry = tk.Entry(self)
+        self.product_name_entry.pack()
+
+        self.price_label = tk.Label(self, text="Price:")
+        self.price_label.pack()
+
+        self.price_entry = tk.Entry(self)
+        self.price_entry.pack()
+
+        self.add_button = tk.Button(self, text="Add Product", command=self.add_product)
+        self.add_button.pack()
+
+        self.discount_label = tk.Label(self, text="Discount Strategy:")
+        self.discount_label.pack()
+
+        self.discount_var = tk.StringVar(self)
+        self.discount_var.set("No Discount")  # Default discount strategy
+        self.discount_menu = tk.OptionMenu(self, self.discount_var, "No Discount", "Black Friday", "Christmas")
+        self.discount_menu.pack()
+
+        self.apply_discount_button = tk.Button(self, text="Apply Discount", command=self.apply_discount)
+        self.apply_discount_button.pack()
+
+        self.view_cart_button = tk.Button(self, text="View Cart", command=self.view_cart)
+        self.view_cart_button.pack()
+
+        self.reset_button = tk.Button(self, text="Reset", command=self.reset)
+        self.reset_button.pack()
+
+        self.total_price_label = tk.Label(self, text="Total Price: $0.00")
+        self.total_price_label.pack()
+
+        # Initialize total price label
+        self.update_total_price()
+
+    def add_product(self):
+        product_name = self.product_name_entry.get()
+        price = self.price_entry.get()
+
+        if not product_name or not price:
+            messagebox.showerror("Error", "Please enter both product name and price.")
+            return
+
+        try:
+            price = float(price)
+        except ValueError:
+            messagebox.showerror("Error", "Invalid price. Please enter a valid number.")
+            return
+
+        product = ProductFactory.create_product(product_name, price)
+        self.controller.add_product(product)
+
+    def apply_discount(self):
+        selected_discount = self.discount_var.get()
+
+        if selected_discount == "No Discount":
+            self.controller.set_discount_strategy(NoDiscountStrategy())
+        elif selected_discount == "Black Friday":
+            self.controller.set_discount_strategy(BlackFridayDiscountStrategy())
+        elif selected_discount == "Christmas":
+            self.controller.set_discount_strategy(ChristmasDiscountStrategy())
+
+        # Update the total price label after applying the discount
+        self.update_total_price()
+
+    def view_cart(self):
+        cart_contents = self.controller.view_cart()
+        if not cart_contents:
+            messagebox.showinfo("Cart", "The shopping cart is empty.")
+        else:
+            cart_items = "\n".join([f"{product.name}: ${product.price:.2f}" for product in cart_contents])
+            messagebox.showinfo("Cart", f"Shopping Cart Contents:\n{cart_items}")
+
+    def reset(self):
+        self.product_name_entry.delete(0, tk.END)
+        self.price_entry.delete(0, tk.END)
+        self.controller.reset()
+
+    def update_total_price(self):
+        total_price = self.controller.calculate_total_price()
+        self.total_price_label.config(text=f"Total Price: ${total_price:.2f}")
+
+    def update(self):
+        # Update the total price label whenever the observable state changes
+        self.update_total_price()
+
+# Controller
+class ECommerceController:
+    def __init__(self):
+        self.shopping_cart = ShoppingCart()
+        self.view = ECommerceView(self)
+        self.view.protocol("WM_DELETE_WINDOW", self.on_close)
+
+    def add_product(self, product):
+        self.shopping_cart.add_product(product)
+
+    def set_discount_strategy(self, discount_strategy):
+        self.shopping_cart.set_discount_strategy(discount_strategy)
+
+    def view_cart(self):
+        return self.shopping_cart.get_cart_contents()
+
+    def reset(self):
+        self.shopping_cart.clear_cart()
+
+    def calculate_total_price(self):
+        return self.shopping_cart.calculate_total_price()
+
+    def attach(self, observer):
+        if not hasattr(self, 'observers'):
+            self.observers = []
+        self.observers.append(observer)
+
+    def on_close(self):
+        self.view.destroy()
+
+if __name__ == "__main__":
+    controller = ECommerceController()
+    tk.mainloop()

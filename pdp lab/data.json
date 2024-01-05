@@ -1,0 +1,50 @@
+{
+    "theatres": {
+      "theatreId1": {
+        "name": "Sathyam Cinemas",
+        "seats": 100
+      },
+      "theatreId2": {
+        "name": "Kamala Cinemas",
+        "seats": 150
+      }
+    },
+    "movies": {
+      "movieId1": {
+        "name": "Vadachennai"
+      },
+      "movieId2": {
+        "name": "Jailer"
+      },
+      "movieId3" : {
+        "name": "Vikram"
+      }
+    },
+    "performances": {
+      "performanceId1": {
+        "theatreId": "theatreId1",
+        "movieId": "movieId1",
+        "date": "2023-12-10",
+        "availableSeats": 80
+      },
+      "performanceId2": {
+        "theatreId": "theatreId2",
+        "movieId": "movieId2",
+        "date": "2023-12-11",
+        "availableSeats": 120
+      }
+    },
+    "reservations": {
+      "reservationId1": {
+        "userId": "userId1",
+        "performanceId": "performanceId1",
+        "reservationNumber": "R123"
+      },
+      "reservationId2": {
+        "userId": "userId2",
+        "performanceId": "performanceId2",
+        "reservationNumber": "R456"
+      }
+    }
+  }
+  
