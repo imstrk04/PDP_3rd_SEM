@@ -88,16 +88,3 @@ Weatherstation.add_observer(displaydevice1)
 Weatherstation.add_observer(displaydevice2)
 
 Weatherstation.measure_temp()
-
-
-    
-        
-            
-            
-    
-
-
-
-    
-        
-
