@@ -2,7 +2,7 @@ import threading
 from abc import ABC, abstractmethod
 import unittest
 import time
-
+import pytest
 
 # observable interface
 class observable:
@@ -92,23 +92,18 @@ class TestVendorSystem(unittest.TestCase):
         bill_thread2 = threading.Thread(target=bill_thread, args=(self.vendorsystem, 2))
 
         print("order thread")
-        time.sleep(1)
         order_thread1.start()
-        time.sleep(1)
         order_thread2.start()
 
         order_thread1.join()
         order_thread2.join()
 
         print("Bill thread")
-        time.sleep(1)
+
         bill_thread1.start()
-        time.sleep(1)
         bill_thread2.start()
 
-        time.sleep(1)
         bill_thread1.join()
-        time.sleep(1)
         bill_thread2.join()
 
         # Add assertions here to check if the order and bill operations were successful
@@ -116,6 +111,9 @@ class TestVendorSystem(unittest.TestCase):
 
         # Example assertion:
         self.assertEqual(self.vendorsystem.order_no, 2)
+
+        assert self.vendorsystem.order_no == 2
+
 
 if __name__ == '__main__':
     unittest.main()

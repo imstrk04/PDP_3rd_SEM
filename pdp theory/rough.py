@@ -300,4 +300,52 @@ async def other_function():
 
 asyncio.run(main())'''
 
-print("version1")
+
+import asyncio
+
+'''async def task(name, duration):
+    print(f"Task {name} started, sleeping for {duration} seconds.")
+    await asyncio.sleep(duration)
+    print(f"Task {name} completed.")
+
+async def main():
+    tasks = [
+        task("A", 2),
+        task("B",1),
+        task("C", 3),
+    ]
+
+    await asyncio.gather(*tasks)
+
+asyncio.run(main())'''
+
+async def print_multiplication_table():
+    number = int(input("Enter a number for multiplication table: "))
+    for i in range(1, 11):
+        print(f"{number} x {i} = {number * i}")
+    print("Multiplication table completed.")
+
+async def check_prime():
+    number = int(input("Enter a number to check if it's prime: "))
+    is_prime = all(number % i != 0 for i in range(2, int(number**0.5) + 1))
+    print(f"{number} is {'prime' if is_prime else 'not prime'}.")
+    print("Prime check completed.")
+
+async def calculate_factorial():
+    number = int(input("Enter a number for factorial calculation: "))
+    factorial = 1
+    for i in range(1, number + 1):
+        factorial *= i
+    print(f"Factorial of {number} is {factorial}.")
+    print("Factorial calculation completed.")
+
+async def main():
+    # Run all three coroutines concurrently
+    await asyncio.gather(
+        print_multiplication_table(),
+        check_prime(),
+        calculate_factorial()
+    )
+    print("Successful completion.")
+
+asyncio.run(main())

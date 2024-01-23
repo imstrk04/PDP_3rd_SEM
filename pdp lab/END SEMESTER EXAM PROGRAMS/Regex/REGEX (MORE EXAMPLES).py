@@ -1,4 +1,5 @@
 import re
+'''import re
 
 
 #question 1 
@@ -40,17 +41,12 @@ pattern5=re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%&*])[a-zA-Z0-
 if re.search(pattern5,text5):
     print('valid')
 else:
-    print('not valid')
+    print('not valid')'''
 
 #question 6
-text6='4789056473890756'
-pattern6=re.compile(r'^[456]+[0-9]{15}$')
+text6='47890564733789756'
+pattern6=re.compile(r'^[456]+[0-9]{1,15}$')
 if re.search(pattern6,text6):
     print('valid')
 else:
     print('not valid')
-
-
-
-
-
